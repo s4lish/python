@@ -18,8 +18,8 @@ class neuralNetwork:
         #save in files becase after each run then dont want to change them.
         filename = "ws.txt"
         if not os.path.exists(filename) or os.stat(filename).st_size == 0:
-            self.wih = np.round(np.random.rand(self.hNodes,self.iNodes) - 0.5,4)
-            self.who = np.round(np.random.rand(self.oNodes,self.hNodes) - 0.5,4)
+            self.wih = np.round(np.random.normal(0.0,pow(self.iNodes,-0.5),(self.hNodes,self.iNodes)),10)
+            self.who = np.round(np.random.normal(0.0,pow(self.hNodes,-0.5),(self.oNodes,self.hNodes)),10)
             with open(filename, "w") as f:
                 json.dump({"wih": self.wih.tolist(), "who": self.who.tolist()}, f)           
             print("Generated and saved random weights.")
@@ -58,7 +58,7 @@ class neuralNetwork:
     
     def query(self,inputs_list):
         #convert inputs list to 2d array
-        inputs = np.array(inputs_list,ndmin=2).T
+        inputs = np.array(np.asarray(inputs_list,dtype=float),ndmin=2).T
         
         hidden_inputs = np.dot(self.wih,inputs)
         hidden_outputs = self.activation_function(hidden_inputs)
@@ -82,8 +82,16 @@ class neuralNetwork:
         scaled_input = (np.asarray(all_values[1:],dtype=float) / 255.0 * 0.99) + 0.01 # all_values[1:] all values except first one. start from 1 to end and not Index 0
         return scaled_input
 
+    def targets(self,label):
+        targets = np.zeros(self.oNodes) + 0.01 # all values to 
+        targets[int(label)] = 0.99
+        return targets
+    
+    def getArgMax(self,outputs):
+        return np.argmax(outputs)
         
         
-        
-        
+    def performance(self,scordcard):
+        scorcardarray = np.asarray(scordcard)
+        return (scorcardarray.sum() / scorcardarray.size)
     pass
